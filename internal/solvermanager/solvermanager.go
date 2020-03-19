@@ -6,6 +6,7 @@ import (
 	"github.com/ski7777/gosudoku/internal/grid"
 	stringloader "github.com/ski7777/gosudoku/internal/loader/string"
 	"github.com/ski7777/gosudoku/internal/solver/blocksolver"
+	"github.com/ski7777/gosudoku/internal/solver/columnsolver"
 )
 
 type SolverManager struct {
@@ -47,6 +48,7 @@ func NewSolverManager(grid *grid.Grid) *SolverManager {
 	sm.grid = grid
 	sm.solver = append(sm.solver,
 		singlecellsolver.Init(),
+		columnsolver.Init(),
 	)
 	return sm
 }
