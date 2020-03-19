@@ -1,18 +1,17 @@
 package solvermanager
 
 import (
-	"log"
-
 	"github.com/ski7777/gosudoku/internal/grid"
 	stringloader "github.com/ski7777/gosudoku/internal/loader/string"
 	"github.com/ski7777/gosudoku/internal/solver/blocksolver"
 	"github.com/ski7777/gosudoku/internal/solver/columnsolver"
 	"github.com/ski7777/gosudoku/internal/solver/rowsolver"
+	"github.com/ski7777/gosudoku/internal/solver/singlecellsolver"
 )
 
 type SolverManager struct {
-	grid      *grid.Grid
-	solver    []Solver
+	grid   *grid.Grid
+	solver []Solver
 }
 
 func (sm *SolverManager) SolveAlgorithmic(g *grid.Grid) bool {
@@ -49,6 +48,7 @@ func NewSolverManager(grid *grid.Grid) *SolverManager {
 	sm.grid = grid
 	sm.solver = append(sm.solver,
 		singlecellsolver.Init(),
+		blocksolver.Init(),
 		rowsolver.Init(),
 		columnsolver.Init(),
 	)
