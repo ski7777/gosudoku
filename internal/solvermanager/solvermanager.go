@@ -10,8 +10,8 @@ import (
 )
 
 type SolverManager struct {
-	grid   *grid.Grid
-	solver []Solver
+	grid      *grid.Grid
+	solver    []Solver
 }
 
 func (sm *SolverManager) SolveAlgorithmic(g *grid.Grid) bool {
