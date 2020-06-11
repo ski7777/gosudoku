@@ -76,6 +76,18 @@ func (g *Grid) Print() {
 	table.Render()
 }
 
+func (g *Grid) Clone() *Grid {
+	ng := NewGrid()
+	for x := 0; x < 9; x++ {
+		for y := 0; y < 9; y++ {
+			if v := g.cells[x][y].GetValue(); v != nil {
+				ng.cells[x][y].SetValue(*v)
+			}
+		}
+	}
+	return ng
+}
+
 func NewGrid() *Grid {
 	g := new(Grid)
 	for x := 0; x < 9; x++ {
