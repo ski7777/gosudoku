@@ -52,19 +52,4 @@ func main() {
 		log.Println("String:", g.ToString())
 	}
 	g.Print()
-	sm := solvermanager.NewSolverManager(g)
-	if !sm.SolveAlgorithmic(nil) {
-		log.Println("Could not find a soultion using algorithms")
-		log.Println("Current state:")
-		g.Print()
-		if *str {
-			log.Println("String:", g.ToString())
-		}
-		return
-	}
-	log.Println("Solution:")
-	g.Print()
-	if *str {
-		log.Println("String:", g.ToString())
-	}
 }
