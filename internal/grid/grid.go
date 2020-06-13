@@ -88,6 +88,28 @@ func (g *Grid) Clone() *Grid {
 	return ng
 }
 
+func (g *Grid) Equals(o *Grid) bool {
+	for x := 0; x < 9; x++ {
+		for y := 0; y < 9; y++ {
+			v1 := g.cells[x][y].GetValue()
+			v2 := o.cells[x][y].GetValue()
+			if v1 == nil {
+				if v2 != nil {
+					return false
+				}
+			} else {
+				if v2 == nil {
+					return false
+				}
+				if *v1 != *v2 {
+					return false
+				}
+			}
+		}
+	}
+	return true
+}
+
 func NewGrid() *Grid {
 	g := new(Grid)
 	for x := 0; x < 9; x++ {
