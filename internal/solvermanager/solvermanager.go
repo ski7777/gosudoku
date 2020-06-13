@@ -10,30 +10,6 @@ import (
 	"github.com/ski7777/gosudoku/package/grid"
 )
 
-type extGrid struct {
-	grid *grid.Grid
-	free int
-	n    int
-	sec  []*grid.ExtendedCell
-}
-
-func (eg *extGrid) updateN() {
-	n := 0
-	for _, m := range eg.sec {
-		n += m.NAllowedVals
-	}
-}
-
-func (eg *extGrid) updateSec() {
-	eg.sec = eg.grid.GetSortedExtendedCells(false)
-}
-
-func (eg *extGrid) updateAll() {
-	eg.free = eg.grid.GetNumFree()
-	eg.updateSec()
-	eg.updateN()
-}
-
 type SolverManager struct {
 	grid                    *grid.Grid
 	as                      *algorithmicsolver.AlgorithmicSolver
@@ -45,9 +21,9 @@ type SolverManager struct {
 	sol                     int
 	sollock                 sync.Mutex
 	maxprocs, maxsolutions  int
-	grids, oldgrids         [82][]*extGrid
+	grids, oldgrids         [82][]*grid.ExtendedGrid
 	gridslock, olfgridslock sync.Mutex
-	workers                 chan func(*extGrid)
+	workers                 chan func(*grid.ExtendedGrid)
 	workerslock             sync.Mutex
 	printlock               sync.Mutex
 	println                 bool
@@ -58,7 +34,7 @@ type SolverManager struct {
 	waitinglock             sync.Mutex
 }
 
-func (sm *SolverManager) push(g *extGrid) {
+func (sm *SolverManager) push(g *grid.ExtendedGrid) {
 	sm.printwait.Add(1)
 	go func() {
 		sm.stepslock.Lock()
@@ -86,37 +62,37 @@ func (sm *SolverManager) push(g *extGrid) {
 	}()
 	sm.olfgridslock.Lock()
 	defer sm.olfgridslock.Unlock()
-	for _, og := range sm.oldgrids[g.free] {
-		if og.n == g.n {
-			if og.grid.Equals(g.grid) {
+	for _, og := range sm.oldgrids[g.GetFreeCount()] {
+		if og.GetAllowedCount() == g.GetAllowedCount() {
+			if og.GetGrid().Equals(g.GetGrid()) {
 				return
 			}
 		}
 	}
-	worklist := append(sm.oldgrids[g.free], g)
+	worklist := append(sm.oldgrids[g.GetFreeCount()], g)
 	sort.Slice(worklist, func(i, j int) bool {
-		return worklist[i].n < worklist[j].n
+		return worklist[i].GetAllowedCount() < worklist[j].GetAllowedCount()
 	})
-	sm.oldgrids[g.free] = worklist
+	sm.oldgrids[g.GetFreeCount()] = worklist
 	go func() {
-		if g.free == 0 {
-			sm.print(g.grid)
+		if g.GetFreeCount() == 0 {
+			sm.print(g.GetGrid())
 		}
 		sm.printwait.Done()
 	}()
 	sm.gridslock.Lock()
 	defer sm.gridslock.Unlock()
-	worklist = append(sm.grids[g.free], g)
+	worklist = append(sm.grids[g.GetFreeCount()], g)
 	sort.Slice(worklist, func(i, j int) bool {
-		return worklist[i].n < worklist[j].n
+		return worklist[i].GetAllowedCount() < worklist[j].GetAllowedCount()
 	})
-	sm.grids[g.free] = worklist
+	sm.grids[g.GetFreeCount()] = worklist
 }
 
 func (sm *SolverManager) Solve() {
 	sm.as.Solve(sm.grid)
-	eg := &extGrid{grid: sm.grid}
-	eg.updateAll()
+	eg := grid.NewExtendedGrid(sm.grid)
+	eg.UpdateAll()
 	sm.push(eg)
 	sm.init = true
 	sm.workerslock.Lock()
@@ -127,7 +103,7 @@ func (sm *SolverManager) Solve() {
 	go func() {
 		for {
 			sm.gridslock.Lock()
-			var job *extGrid
+			var job *grid.ExtendedGrid
 			for i := 1; i < 82 && job == nil; i++ {
 				l := sm.grids[i]
 				if len(l) > 0 {
@@ -159,15 +135,15 @@ func (sm *SolverManager) Solve() {
 	}
 }
 
-func (sm *SolverManager) worker(eg *extGrid) {
-	for _, ec := range eg.sec {
+func (sm *SolverManager) worker(eg *grid.ExtendedGrid) {
+	for _, ec := range eg.GetSEC() {
 		c := ec.Cell
 		sm.waitinglock.Lock()
 		sm.waiting += len(ec.AllowedVals)
 		sm.waitinglock.Unlock()
 		for _, s := range ec.AllowedVals {
 			c.SetValue(s)
-			ng := eg.grid.Clone()
+			ng := eg.GetGrid().Clone()
 			go func() {
 			waitloop:
 				for {
@@ -179,12 +155,11 @@ func (sm *SolverManager) worker(eg *extGrid) {
 						sm.waiting--
 						sm.waitinglock.Unlock()
 						solved := sm.as.Solve(ng)
-						neg := &extGrid{grid: ng}
+						neg := grid.NewExtendedGrid(ng)
 						if solved {
-							neg.free = 0
-							neg.n = 0
+							neg.SetNull()
 						} else {
-							neg.updateAll()
+							neg.UpdateAll()
 						}
 						go func() {
 							sm.push(neg)
@@ -226,15 +201,15 @@ func (sm *SolverManager) print(g *grid.Grid) {
 	}
 }
 
-func NewSolverManager(grid *grid.Grid, str bool, maxprocs, maxsolutions int) *SolverManager {
+func NewSolverManager(g *grid.Grid, str bool, maxprocs, maxsolutions int) *SolverManager {
 	sm := new(SolverManager)
-	sm.grid = grid
+	sm.grid = g
 	sm.str = str
 	sm.sol = 1
 	sm.as = algorithmicsolver.NewAlgorithmicSolver()
 	sm.maxprocs = maxprocs
 	sm.maxsolutions = maxsolutions
-	sm.workers = make(chan func(*extGrid), sm.maxprocs/2)
+	sm.workers = make(chan func(*grid.ExtendedGrid), sm.maxprocs/2)
 	sm.end = make(chan interface{})
 	return sm
 }
