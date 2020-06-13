@@ -30,15 +30,20 @@ func (g *Grid) Blocks() [3][3]*Block {
 	return g.blocks
 }
 
-func (g *Grid) CheckSolved() bool {
+func (g *Grid) GetNumFree() int {
+	n := 0
 	for x := 0; x < 9; x++ {
 		for y := 0; y < 9; y++ {
 			if g.cells[x][y].GetValue() == nil {
-				return false
+				n++
 			}
 		}
 	}
-	return true
+	return n
+}
+
+func (g *Grid) CheckSolved() bool {
+	return g.GetNumFree() == 0
 }
 
 func (g *Grid) ToString() string {
