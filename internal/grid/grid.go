@@ -2,6 +2,7 @@ package grid
 
 import (
 	"os"
+	"sort"
 	"strconv"
 
 	"github.com/olekukonko/tablewriter"
@@ -35,6 +36,22 @@ func (g *Grid) AllCells() []*Cell {
 	for _, x := range g.Cells() {
 		cells = append(cells, x[:]...)
 	}
+	return cells
+}
+
+func (g *Grid) GetSortedExtendedCells(used bool) []*ExtendedCell {
+	cells := []*ExtendedCell{}
+	rcells := g.AllCells()
+	for _, rc := range rcells {
+		c := NewExtendedCell(rc)
+		c.Update()
+		if used || !c.Used {
+			cells = append(cells, c)
+		}
+	}
+	sort.Slice(cells, func(i, j int) bool {
+		return cells[i].NAllowedVals < cells[j].NAllowedVals
+	})
 	return cells
 }
 
