@@ -28,6 +28,8 @@ func main() {
 	loaderhelp := parser.Flag("p", "loader-help", &argparse.Options{Help: "Show help for selected loader"})
 	loaderargs := parser.List("a", "loader-arg", &argparse.Options{Help: "Loader arguments. key=value"})
 	str := parser.Flag("s", "string", &argparse.Options{Help: "Show input as string"})
+	maxprocs := parser.Int("n", "procs", &argparse.Options{Help: "Number of maximum allowed processes. 0 disables complex solving, -1 disables process limit", Default: 50})
+	maxsolutions := parser.Int("m", "solutions", &argparse.Options{Help: "Number of maximum showd solutions. 0 disables solving, -1 disables solution limit", Default: -1})
 	err := parser.Parse(os.Args)
 	if err != nil {
 		fmt.Print(parser.Usage(err))
@@ -52,4 +54,6 @@ func main() {
 		log.Println("String:", g.ToString())
 	}
 	g.Print()
+	sm := solvermanager.NewSolverManager(g, *str, *maxprocs, *maxsolutions)
+	sm.Solve()
 }
