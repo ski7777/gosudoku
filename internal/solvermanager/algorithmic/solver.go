@@ -1,4 +1,4 @@
-package solvermanager
+package algorithmic
 
 import (
 	"github.com/ski7777/gosudoku/internal/grid"
