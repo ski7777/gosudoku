@@ -30,6 +30,14 @@ func (g *Grid) Blocks() [3][3]*Block {
 	return g.blocks
 }
 
+func (g *Grid) AllCells() []*Cell {
+	cells := []*Cell{}
+	for _, x := range g.Cells() {
+		cells = append(cells, x[:]...)
+	}
+	return cells
+}
+
 func (g *Grid) GetNumFree() int {
 	n := 0
 	for x := 0; x < 9; x++ {
