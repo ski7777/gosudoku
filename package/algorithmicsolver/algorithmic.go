@@ -1,15 +1,16 @@
-package algorithmic
+package algorithmicsolver
 
 import (
-	"github.com/ski7777/gosudoku/internal/grid"
-	"github.com/ski7777/gosudoku/internal/solver/blocksolver"
-	"github.com/ski7777/gosudoku/internal/solver/columnsolver"
-	"github.com/ski7777/gosudoku/internal/solver/rowsolver"
-	"github.com/ski7777/gosudoku/internal/solver/singlecellsolver"
+	"github.com/ski7777/gosudoku/package/grid"
+	"github.com/ski7777/gosudoku/package/solver/blocksolver"
+	"github.com/ski7777/gosudoku/package/solver/columnsolver"
+	"github.com/ski7777/gosudoku/package/solver/rowsolver"
+	"github.com/ski7777/gosudoku/package/solver/singlecellsolver"
+	"github.com/ski7777/gosudoku/package/solvermanager"
 )
 
 type AlgorithmicSolver struct {
-	solver []Solver
+	solver []solvermanager.Solver
 }
 
 func (as *AlgorithmicSolver) Solve(g *grid.Grid) bool {

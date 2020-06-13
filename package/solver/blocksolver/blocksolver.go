@@ -1,7 +1,7 @@
 package blocksolver
 
 import (
-	"github.com/ski7777/gosudoku/internal/grid"
+	"github.com/ski7777/gosudoku/package/grid"
 )
 
 type BlockSolver struct {

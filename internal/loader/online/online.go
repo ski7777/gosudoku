@@ -9,7 +9,7 @@ import (
 
 	stringloader "github.com/ski7777/gosudoku/internal/loader/string"
 
-	"github.com/ski7777/gosudoku/internal/grid"
+	"github.com/ski7777/gosudoku/package/grid"
 )
 
 const url = "https://sudoku.com/api/getLevel/"

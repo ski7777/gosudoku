@@ -6,8 +6,8 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/ski7777/gosudoku/internal/grid"
-	"github.com/ski7777/gosudoku/internal/solvermanager/algorithmic"
+	"github.com/ski7777/gosudoku/package/algorithmicsolver"
+	"github.com/ski7777/gosudoku/package/grid"
 )
 
 type extGrid struct {
@@ -36,7 +36,7 @@ func (eg *extGrid) updateAll() {
 
 type SolverManager struct {
 	grid                    *grid.Grid
-	as                      *algorithmic.AlgorithmicSolver
+	as                      *algorithmicsolver.AlgorithmicSolver
 	str                     bool
 	workerproc              int
 	workerproclock          sync.Mutex
@@ -231,7 +231,7 @@ func NewSolverManager(grid *grid.Grid, str bool, maxprocs, maxsolutions int) *So
 	sm.grid = grid
 	sm.str = str
 	sm.sol = 1
-	sm.as = algorithmic.NewAlgorithmicSolver()
+	sm.as = algorithmicsolver.NewAlgorithmicSolver()
 	sm.maxprocs = maxprocs
 	sm.maxsolutions = maxsolutions
 	sm.workers = make(chan func(*extGrid), sm.maxprocs/2)

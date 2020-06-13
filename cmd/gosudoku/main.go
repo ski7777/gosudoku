@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"github.com/akamensky/argparse"
-	"github.com/ski7777/gosudoku/internal/grid"
 	"github.com/ski7777/gosudoku/internal/loader/online"
 	stringloader "github.com/ski7777/gosudoku/internal/loader/string"
 	"github.com/ski7777/gosudoku/internal/loadermanager"
 	"github.com/ski7777/gosudoku/internal/solvermanager"
+	"github.com/ski7777/gosudoku/package/grid"
 )
 
 func main() {
