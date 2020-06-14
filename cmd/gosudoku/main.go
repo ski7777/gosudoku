@@ -11,6 +11,11 @@ import (
 	"github.com/ski7777/gosudoku/internal/loader/online"
 	stringloader "github.com/ski7777/gosudoku/internal/loader/string"
 	"github.com/ski7777/gosudoku/internal/loadermanager"
+	"github.com/ski7777/gosudoku/internal/output"
+	"github.com/ski7777/gosudoku/internal/output/gridoutput"
+	"github.com/ski7777/gosudoku/internal/output/stringoutput"
+	"github.com/ski7777/gosudoku/internal/solver"
+	"github.com/ski7777/gosudoku/internal/workermanager"
 	"github.com/ski7777/gosudoku/package/grid"
 )
 
@@ -53,4 +58,21 @@ func main() {
 		log.Println("String:", g.ToString())
 	}
 	g.Print()
+	wm := workermanager.NewWorkerManager()
+	for i := 0; i < *maxprocs; i++ {
+		wm.AddWorker(nil)
+	}
+	limitchan := make(chan interface{})
+	o := output.NewOutput(*maxsolutions, func() {
+		limitchan <- struct{}{}
+	})
+	o.RegisterOutputter(&gridoutput.GridOutput{})
+	if *str {
+		o.RegisterOutputter(&stringoutput.StringOutput{})
+	}
+	s := solver.NewSolver(g, wm, o.Output)
+	go s.Solve()
+	select {
+	case <-limitchan:
+	}
 }
