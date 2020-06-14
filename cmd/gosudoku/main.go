@@ -73,10 +73,14 @@ func main() {
 	if *str {
 		o.RegisterOutputter(&stringoutput.StringOutput{})
 	}
-	s := solver.NewSolver(g, wm, o.Output)
+	endchan := make(chan interface{})
+	s := solver.NewSolver(g, wm, o.Output, func() {
+		endchan <- struct{}{}
+	})
 	go s.Solve()
 	select {
 	case <-oschan:
 	case <-limitchan:
+	case <-endchan:
 	}
 }
