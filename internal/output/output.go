@@ -1,6 +1,7 @@
 package output
 
 import (
+	"log"
 	"sync"
 
 	"github.com/ski7777/gosudoku/package/grid"
@@ -25,8 +26,9 @@ func (o *Output) Output(g *grid.Grid) {
 		defer func() { go o.limitcall() }()
 		return
 	}
+	log.Println("Solution", o.count)
 	for _, op := range o.outputters {
-		op.Output(g, o.count)
+		op.Output(g)
 	}
 	o.count++
 }
