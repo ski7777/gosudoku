@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
 
 	"github.com/akamensky/argparse"
@@ -62,6 +63,8 @@ func main() {
 	for i := 0; i < *maxprocs; i++ {
 		wm.AddWorker(nil)
 	}
+	oschan := make(chan os.Signal, 1)
+	signal.Notify(oschan, os.Interrupt)
 	limitchan := make(chan interface{})
 	o := output.NewOutput(*maxsolutions, func() {
 		limitchan <- struct{}{}
@@ -73,6 +76,7 @@ func main() {
 	s := solver.NewSolver(g, wm, o.Output)
 	go s.Solve()
 	select {
+	case <-oschan:
 	case <-limitchan:
 	}
 }
