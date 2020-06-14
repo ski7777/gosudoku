@@ -11,7 +11,6 @@ import (
 	"github.com/ski7777/gosudoku/internal/loader/online"
 	stringloader "github.com/ski7777/gosudoku/internal/loader/string"
 	"github.com/ski7777/gosudoku/internal/loadermanager"
-	"github.com/ski7777/gosudoku/internal/solvermanager"
 	"github.com/ski7777/gosudoku/package/grid"
 )
 
@@ -54,6 +53,4 @@ func main() {
 		log.Println("String:", g.ToString())
 	}
 	g.Print()
-	sm := solvermanager.NewSolverManager(g, *str, *maxprocs, *maxsolutions)
-	sm.Solve()
 }
