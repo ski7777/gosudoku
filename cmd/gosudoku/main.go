@@ -78,7 +78,7 @@ func main() {
 	}
 	o.SetLogOutputter(&logoutput.LogOutput{})
 	endchan := make(chan interface{})
-	s := solver.NewSolver(g, wm, o.OutputGrid, func() {
+	s := solver.NewSolver(g, wm, o.OutputGrid, o.OutputLog, func() {
 		endchan <- struct{}{}
 	})
 	go s.Solve()

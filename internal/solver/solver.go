@@ -17,6 +17,7 @@ type Solver struct {
 	update          *sync.Cond
 	stats           *[3]int
 	newstats        *sync.Cond
+	logCall         func(...interface{})
 }
 
 func (sm *Solver) workerManagerCallBack(data workermanager.Result) {
@@ -50,12 +51,15 @@ func (sm *Solver) Solve() {
 	var wmn, wmi, wmw int
 	sm.wm.ForcePushStats()
 	wmn = sm.stats[0]
+	c := 0
 solve:
 	for {
 		n := 0
 		for x := 1; x < 82; x++ {
 			n += len(sm.grids[x])
 		}
+		sm.logCall("Cycle", c, "Pending:", n)
+		c++
 	job:
 		for i := 0; i < wmn; i++ {
 			for x := 1; x < 82; x++ {
@@ -93,11 +97,12 @@ solve:
 	}
 }
 
-func NewSolver(g *grid.Grid, wm *workermanager.WorkerManager, resultCall func(*grid.Grid), endcall func()) *Solver {
+func NewSolver(g *grid.Grid, wm *workermanager.WorkerManager, resultCall func(*grid.Grid), logCall func(...interface{}), endcall func()) *Solver {
 	sm := new(Solver)
 	sm.wm = wm
 	sm.wm.SetCallback(sm.workerManagerCallBack)
 	sm.resultCall = resultCall
+	sm.logCall = logCall
 	sm.endcall = endcall
 	sm.update = sync.NewCond(&sync.Mutex{})
 	eg := grid.NewExtendedGrid(g)
