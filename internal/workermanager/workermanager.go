@@ -17,6 +17,8 @@ type WorkerManager struct {
 	waiting     int
 	waitinglock sync.Mutex
 	callback    CallBack
+	stats       *[3]int
+	newstats    *sync.Cond
 }
 
 func (wm *WorkerManager) AddWorker(wl ...Worker) {
@@ -66,6 +68,11 @@ wait:
 			delete(wm.inWork, id)
 			go wm.callback(r)
 			wm.AddWorker(w)
+			wm.workerslock.Lock()
+			defer wm.workerslock.Unlock()
+			wm.waitinglock.Lock()
+			defer wm.waitinglock.Unlock()
+			wm.pushStats()
 		}
 	}()
 	return nil
@@ -75,9 +82,41 @@ func (wm *WorkerManager) SetCallback(cb CallBack) {
 	wm.callback = cb
 }
 
+//no locking! Needs workerslock, inWorkLock, waitinglock
+//non-blocking!
+func (wm *WorkerManager) pushStats() {
+	wm.newstats.L.Lock()
+	defer wm.newstats.L.Unlock()
+	wm.stats[0], wm.stats[1], wm.stats[2] = len(wm.workers), len(wm.inWork), wm.waiting
+	wm.newstats.Broadcast()
+}
+
+func (wm *WorkerManager) ForcePushStats() {
+	wm.workerslock.Lock()
+	wm.inWorkLock.Lock()
+	wm.waitinglock.Lock()
+	defer wm.workerslock.Unlock()
+	defer wm.inWorkLock.Unlock()
+	defer wm.waitinglock.Unlock()
+	wm.pushStats()
+}
+
+func (wm *WorkerManager) GetStats() (*[3]int, *sync.Cond) {
+	return wm.stats, wm.newstats
+}
+
 func NewWorkerManager() *WorkerManager {
 	wm := new(WorkerManager)
 	wm.workerslock = &sync.Mutex{}
 	wm.newworkers = sync.NewCond(wm.workerslock)
+	wm.inWork = make(map[string]*job)
+	wm.stats = new([3]int)
+	wm.newstats = sync.NewCond(&sync.Mutex{})
+	go func() {
+		for {
+			<-time.Tick(time.Second)
+			wm.ForcePushStats()
+		}
+	}()
 	return wm
 }
