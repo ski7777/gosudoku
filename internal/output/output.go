@@ -22,21 +22,23 @@ func (o *Output) RegisterOutputter(op Outputter) {
 func (o *Output) Output(g *grid.Grid) {
 	o.lock.Lock()
 	defer o.lock.Unlock()
-	if o.count == o.limit+1 {
+	o.count++
+	if o.count == o.limit {
 		defer func() { go o.limitcall() }()
-		return
 	}
 	log.Println("Solution", o.count)
 	for _, op := range o.outputters {
 		op.Output(g)
 	}
-	o.count++
 }
 
 func NewOutput(limit int, limitcall func()) *Output {
 	o := new(Output)
 	o.limit = limit
 	o.limitcall = limitcall
-	o.count = 1
+	o.count = 0
+	if o.limit == 0 {
+		go o.limitcall()
+	}
 	return o
 }
