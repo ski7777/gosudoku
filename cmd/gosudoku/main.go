@@ -71,12 +71,12 @@ func main() {
 	o := output.NewOutput(*maxsolutions, func() {
 		limitchan <- struct{}{}
 	})
-	o.RegisterOutputter(&gridoutput.GridOutput{})
+	o.RegisterGridOutputter(&gridoutput.GridOutput{})
 	if *str {
-		o.RegisterOutputter(&stringoutput.StringOutput{})
+		o.RegisterGridOutputter(&stringoutput.StringOutput{})
 	}
 	endchan := make(chan interface{})
-	s := solver.NewSolver(g, wm, o.Output, func() {
+	s := solver.NewSolver(g, wm, o.OutputGrid, func() {
 		endchan <- struct{}{}
 	})
 	go s.Solve()

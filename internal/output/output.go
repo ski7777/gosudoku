@@ -8,18 +8,19 @@ import (
 )
 
 type Output struct {
-	outputters []Outputter
-	lock       sync.Mutex
-	count      int
-	limit      int
-	limitcall  func()
+	gridoutputters []GridOutputter
+	logoutputter   LogOutputter
+	lock           sync.Mutex
+	count          int
+	limit          int
+	limitcall      func()
 }
 
-func (o *Output) RegisterOutputter(op Outputter) {
-	o.outputters = append(o.outputters, op)
+func (o *Output) RegisterGridOutputter(op GridOutputter) {
+	o.gridoutputters = append(o.gridoutputters, op)
 }
 
-func (o *Output) Output(g *grid.Grid) {
+func (o *Output) OutputGrid(g *grid.Grid) {
 	o.lock.Lock()
 	defer o.lock.Unlock()
 	o.count++
@@ -27,7 +28,7 @@ func (o *Output) Output(g *grid.Grid) {
 		defer func() { go o.limitcall() }()
 	}
 	log.Println("Solution", o.count)
-	for _, op := range o.outputters {
+	for _, op := range o.gridoutputters {
 		op.Output(g)
 	}
 }
