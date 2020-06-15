@@ -14,6 +14,7 @@ import (
 	"github.com/ski7777/gosudoku/internal/loadermanager"
 	"github.com/ski7777/gosudoku/internal/output"
 	"github.com/ski7777/gosudoku/internal/output/gridoutput"
+	"github.com/ski7777/gosudoku/internal/output/logoutput"
 	"github.com/ski7777/gosudoku/internal/output/stringoutput"
 	"github.com/ski7777/gosudoku/internal/solver"
 	"github.com/ski7777/gosudoku/internal/workermanager"
@@ -75,6 +76,7 @@ func main() {
 	if *str {
 		o.RegisterGridOutputter(&stringoutput.StringOutput{})
 	}
+	o.SetLogOutputter(&logoutput.LogOutput{})
 	endchan := make(chan interface{})
 	s := solver.NewSolver(g, wm, o.OutputGrid, func() {
 		endchan <- struct{}{}
