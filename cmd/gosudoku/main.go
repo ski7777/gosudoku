@@ -17,6 +17,7 @@ import (
 	"github.com/ski7777/gosudoku/internal/output/stringoutput"
 	"github.com/ski7777/gosudoku/internal/solver"
 	"github.com/ski7777/gosudoku/internal/workermanager"
+	"github.com/ski7777/gosudoku/package/algorithmicsolver"
 	"github.com/ski7777/gosudoku/package/grid"
 )
 
@@ -59,9 +60,10 @@ func main() {
 		log.Println("String:", g.ToString())
 	}
 	g.Print()
+	sw := solver.GetSolverWorker(algorithmicsolver.NewAlgorithmicSolver())
 	wm := workermanager.NewWorkerManager()
 	for i := 0; i < *maxprocs; i++ {
-		wm.AddWorker(nil)
+		wm.AddWorker(sw)
 	}
 	oschan := make(chan os.Signal, 1)
 	signal.Notify(oschan, os.Interrupt)

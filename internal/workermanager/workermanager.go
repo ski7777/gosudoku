@@ -1,7 +1,6 @@
 package workermanager
 
 import (
-	"errors"
 	"sync"
 	"time"
 
@@ -20,19 +19,13 @@ type WorkerManager struct {
 	callback    CallBack
 }
 
-func (wm *WorkerManager) AddWorker(wl ...Worker) error {
+func (wm *WorkerManager) AddWorker(wl ...Worker) {
 	wm.workerslock.Lock()
 	defer wm.workerslock.Unlock()
 	for _, nw := range wl {
-		for _, ow := range wm.workers {
-			if nw == ow {
-				return errors.New("Worker already registered")
-			}
-		}
 		wm.workers = append(wm.workers, nw)
 		wm.newworkers.Signal()
 	}
-	return nil
 }
 
 func (wm *WorkerManager) Work(eg *grid.ExtendedGrid) error {
@@ -66,7 +59,7 @@ wait:
 	}
 	wm.workerslock.Unlock()
 	go func() {
-		r := (*w)(j.eg)
+		r := w(j.eg)
 		wm.inWorkLock.Lock()
 		defer wm.inWorkLock.Unlock()
 		if _, ok := wm.inWork[id]; ok {
