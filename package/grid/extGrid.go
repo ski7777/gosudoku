@@ -10,7 +10,7 @@ type ExtendedGrid struct {
 func (eg *ExtendedGrid) UpdateN() {
 	n := 0
 	for _, m := range eg.sec {
-		n += m.getNumAllowedValued()
+		n += m.GetNumAllowedValued()
 	}
 }
 
@@ -36,6 +36,10 @@ func (eg *ExtendedGrid) SetNull() {
 	eg.free = 0
 	eg.n = 0
 	eg.sec = []*ExtendedCell{}
+}
+
+func (eg *ExtendedGrid) Clone() *ExtendedGrid {
+	return NewExtendedGrid(eg.GetGrid().Clone())
 }
 
 func NewExtendedGrid(g *Grid) *ExtendedGrid {

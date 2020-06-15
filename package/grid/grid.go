@@ -45,12 +45,12 @@ func (g *Grid) GetSortedExtendedCells(used bool) []*ExtendedCell {
 	for _, rc := range rcells {
 		c := NewExtendedCell(rc)
 		c.Update()
-		if used || !c.isUsed() {
+		if used || !c.IsUsed() {
 			cells = append(cells, c)
 		}
 	}
 	sort.Slice(cells, func(i, j int) bool {
-		return cells[i].getNumAllowedValued() < cells[j].getNumAllowedValued()
+		return cells[i].GetNumAllowedValued() < cells[j].GetNumAllowedValued()
 	})
 	return cells
 }
